@@ -1,0 +1,19 @@
+{
+  "name": "Jastrow Dictionary",
+  "short_name": "Jastrow",
+  "description": "Search engine for Jastrow's Dictionary of the Targumim, Talmud Babli and Yerushalmi, and the Midrashic Literature",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f4ee",
+  "theme_color": "#1a3a6c",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "reference"]
+}

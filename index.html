@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a3a6c">
+  <meta name="description" content="Search Jastrow's Dictionary of the Targumim, Talmud Babli and Yerushalmi, and the Midrashic Literature — fully offline, runs in the browser.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jastrow">
+
+  <title>Jastrow Dictionary</title>
+
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <header class="app-header">
+    <div class="header-inner">
+      <h1 class="app-title">
+        <span class="title-he" dir="rtl" lang="he">ג׳סטרוב</span>
+        <span class="title-sep">·</span>
+        <span class="title-en">Jastrow</span>
+      </h1>
+      <div class="header-actions">
+        <button id="installBtn" class="btn-icon" title="Install app" aria-label="Install app" hidden>⬇</button>
+        <button id="themeBtn"   class="btn-icon" title="Toggle dark mode" aria-label="Toggle dark mode">☽</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <div class="search-area" role="search">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search in Hebrew/Aramaic or English…"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          dir="auto"
+          aria-label="Search the dictionary"
+          aria-autocomplete="list"
+          aria-controls="suggestions"
+          aria-expanded="false"
+        >
+        <button id="clearBtn" class="clear-btn" title="Clear search" aria-label="Clear search" hidden>✕</button>
+      </div>
+      <div
+        id="suggestions"
+        class="suggestions"
+        role="listbox"
+        aria-label="Search suggestions"
+        hidden
+      ></div>
+    </div>
+
+    <div id="entryView" class="entry-view hidden" aria-live="polite"></div>
+
+    <div id="keyboard" class="keyboard" aria-label="Hebrew keyboard" role="group"></div>
+
+    <p class="status-bar"><span id="statusMsg">Loading dictionary…</span></p>
+
+  </main>
+</div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
