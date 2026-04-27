@@ -180,14 +180,13 @@ function buildSenses(senses, depth = 0) {
 
 function buildNav(entry) {
   const { prev, next, position, total } = dict.neighbors(entry.rid, entry.hw);
-  if (total <= 1) return '';
   const prevBtn = prev
     ? `<button class="nav-btn" data-rid="${escAttr(prev.rid)}" data-hw="${escAttr(prev.hw)}">← <span dir="rtl" lang="he">${escHtml(prev.hw)}</span></button>`
-    : '<span class="nav-empty"></span>';
+    : `<button class="nav-btn" disabled>←</button>`;
   const counter = `<span class="nav-counter">${position} / ${total}</span>`;
   const nextBtn = next
     ? `<button class="nav-btn" data-rid="${escAttr(next.rid)}" data-hw="${escAttr(next.hw)}"><span dir="rtl" lang="he">${escHtml(next.hw)}</span> →</button>`
-    : '<span class="nav-empty"></span>';
+    : `<button class="nav-btn" disabled>→</button>`;
   return `<nav class="entry-nav">${prevBtn}${counter}${nextBtn}</nav>`;
 }
 

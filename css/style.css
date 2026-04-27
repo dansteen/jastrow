@@ -358,10 +358,11 @@ a { color: var(--accent); text-decoration: underline; }
 .entry-nav {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: .5rem;
-  margin-top: 1rem;
-  padding-top: .75rem;
-  border-top: 1px solid var(--border);
+  margin-bottom: .75rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--border);
 }
 .nav-btn {
   background: var(--bg);
@@ -373,9 +374,8 @@ a { color: var(--accent); text-decoration: underline; }
   transition: background .1s;
 }
 .nav-btn span { font-family: var(--he-font); font-size: 1em; }
-.nav-btn:hover { background: var(--bg-sug-hover); }
-.nav-counter { font-size: .8rem; color: var(--text-dim); }
-.nav-empty { flex: 1; }
+.nav-btn:hover:not(:disabled) { background: var(--bg-sug-hover); }
+.nav-btn:disabled { color: var(--text-dim); border-color: var(--border); cursor: default; opacity: .45; }
 
 /* Source */
 .entry-source {
