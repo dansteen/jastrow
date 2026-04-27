@@ -114,41 +114,18 @@ async function openEntry(rid, hw) {
   collapseKeyboard();
 
   try {
-    const entry = await dict.entry(rid);
-    if (entry) renderEntry(entry);
+    const members = dict.groupFor(hw);
+    const group = members.length ? members : [{ hw, rid }];
+    const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
+    if (entries.length) renderEntries(entries);
     else entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
   } catch (e) {
     entryView.innerHTML = '<p class="entry-err">Could not load entry — are you offline?</p>';
   }
 }
 
-function renderEntry(entry) {
-  const sensesHtml = buildSenses(entry.senses || []);
-  const altHtml = entry.alt?.length
-    ? `<div class="entry-alt">Also: <span dir="rtl" lang="he">${entry.alt.map(escHtml).join(', ')}</span></div>`
-    : '';
-  const morphHtml = entry.morph ? `<span class="entry-morph">${escHtml(entry.morph)}</span>` : '';
-  const refsHtml = entry.refs?.length
-    ? `<div class="entry-refs"><span class="refs-label">Refs:</span> ${entry.refs.map(escHtml).join(' · ')}</div>`
-    : '';
-  const navHtml = buildNav(entry);
-
-  entryView.innerHTML = `
-    <article class="entry-card">
-      ${navHtml}
-      <header class="entry-header">
-        <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
-        ${morphHtml}${altHtml}
-      </header>
-      <div class="entry-body">${sensesHtml}</div>
-      ${refsHtml}
-      <footer class="entry-source">
-        <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
-        — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
-      </footer>
-    </article>`;
-
-  // Wire cross-reference links
+function renderEntries(entries) {
+  entryView.innerHTML = entries.map(entryCardHtml).join('');
   entryView.querySelectorAll('a.refLink, [data-ref]').forEach(a => {
     a.setAttribute('href', '#');
     a.addEventListener('click', e => {
@@ -160,6 +137,30 @@ function renderEntry(entry) {
       }
     });
   });
+}
+
+function entryCardHtml(entry) {
+  const sensesHtml = buildSenses(entry.senses || []);
+  const altHtml = entry.alt?.length
+    ? `<div class="entry-alt">Also: <span dir="rtl" lang="he">${entry.alt.map(escHtml).join(', ')}</span></div>`
+    : '';
+  const morphHtml = entry.morph ? `<span class="entry-morph">${escHtml(entry.morph)}</span>` : '';
+  const refsHtml = entry.refs?.length
+    ? `<div class="entry-refs"><span class="refs-label">Refs:</span> ${entry.refs.map(escHtml).join(' · ')}</div>`
+    : '';
+  return `
+    <article class="entry-card">
+      <header class="entry-header">
+        <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
+        ${morphHtml}${altHtml}
+      </header>
+      <div class="entry-body">${sensesHtml}</div>
+      ${refsHtml}
+      <footer class="entry-source">
+        <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
+        — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
+      </footer>
+    </article>`;
 }
 
 function buildSenses(senses, depth = 0) {
@@ -176,18 +177,6 @@ function buildSenses(senses, depth = 0) {
   }
   html += `</${tag}>`;
   return html;
-}
-
-function buildNav(entry) {
-  const { prev, next, position, total } = dict.neighbors(entry.rid, entry.hw);
-  const prevBtn = prev
-    ? `<button class="nav-btn" data-rid="${escAttr(prev.rid)}" data-hw="${escAttr(prev.hw)}">← <span dir="rtl" lang="he">${escHtml(prev.hw)}</span></button>`
-    : `<button class="nav-btn" disabled>←</button>`;
-  const counter = `<span class="nav-counter">${position} / ${total}</span>`;
-  const nextBtn = next
-    ? `<button class="nav-btn" data-rid="${escAttr(next.rid)}" data-hw="${escAttr(next.hw)}"><span dir="rtl" lang="he">${escHtml(next.hw)}</span> →</button>`
-    : `<button class="nav-btn" disabled>→</button>`;
-  return `<nav class="entry-nav">${prevBtn}${counter}${nextBtn}</nav>`;
 }
 
 function extractHwFromRef(ref) {
@@ -256,13 +245,6 @@ clearBtn.addEventListener('click', () => {
 
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-area')) hideSuggestions();
-});
-
-// Entry nav via delegation
-entryView.addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn[data-rid]');
-  if (!btn) return;
-  openEntry(btn.dataset.rid, btn.dataset.hw);
 });
 
 

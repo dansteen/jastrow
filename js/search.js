@@ -102,6 +102,11 @@ export class JastrowSearch {
     };
   }
 
+  // Returns all {hw, rid} entries that share the same root spelling.
+  groupFor(hw) {
+    return this.#groups?.get(groupKey(hw)) ?? [];
+  }
+
   async prefetchAll() {
     if (!this.#index) return;
     const letters = [...new Set(this.#index.map(([, rid]) => rid[0]))];
