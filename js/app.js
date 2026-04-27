@@ -18,6 +18,10 @@ let debounce = null;
 let activeIdx = -1;   // keyboard-selected suggestion index
 let lastQuery = '';
 
+// ── Keyboard collapse ────────────────────────────────────────────────────────
+function collapseKeyboard() { kbContainer.classList.add('collapsed'); }
+function expandKeyboard()   { kbContainer.classList.remove('collapsed'); }
+
 // ── Keyboard ─────────────────────────────────────────────────────────────────
 new HebrewKeyboard(kbContainer, key => {
   const inp = searchInput;
@@ -108,6 +112,7 @@ async function openEntry(rid, hw) {
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
   entryView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  collapseKeyboard();
 
   try {
     const entry = await dict.entry(rid);
@@ -231,6 +236,16 @@ themeBtn.addEventListener('click', () => { dark = !dark; applyTheme(dark); });
 
 // ── Event wiring ──────────────────────────────────────────────────────────────
 searchInput.addEventListener('input', triggerSearch);
+
+searchInput.addEventListener('focus', expandKeyboard);
+
+// Tapping the collapsed keyboard strip expands it and focuses search
+kbContainer.addEventListener('click', e => {
+  if (kbContainer.classList.contains('collapsed')) {
+    expandKeyboard();
+    searchInput.focus();
+  }
+});
 
 searchInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') { e.preventDefault(); moveSuggestion(1); }

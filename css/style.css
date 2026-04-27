@@ -213,7 +213,39 @@ a { color: var(--accent); text-decoration: underline; }
   padding: .6rem .4rem;
   margin-bottom: 1rem;
   user-select: none;
+  transition: transform .28s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Slide down until only the 32px handle strip is visible */
+.keyboard.collapsed { transform: translateY(calc(100% - 32px)); cursor: pointer; }
+.keyboard.collapsed .kb-row,
+.keyboard.collapsed .kb-key { pointer-events: none; }
+
+/* Handle strip */
+.kb-handle {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  cursor: pointer;
+}
+.kb-handle-pill {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.keyboard:not(.collapsed) .kb-handle-pill { background: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+.kb-handle-text {
+  font-size: .75rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity .2s;
+  white-space: nowrap;
+}
+.keyboard.collapsed .kb-handle-text { opacity: 1; }
 .kb-row {
   display: flex;
   justify-content: center;

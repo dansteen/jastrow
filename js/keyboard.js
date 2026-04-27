@@ -15,6 +15,16 @@ export class HebrewKeyboard {
   #render() {
     this.container.innerHTML = '';
 
+    // Handle strip — always at the top; becomes the visible tab when collapsed
+    const handle = document.createElement('div');
+    handle.className = 'kb-handle';
+    handle.setAttribute('role', 'button');
+    handle.setAttribute('aria-label', 'Show keyboard');
+    handle.innerHTML =
+      '<span class="kb-handle-pill"></span>' +
+      '<span class="kb-handle-text">⌨ Show keyboard</span>';
+    this.container.appendChild(handle);
+
     for (const row of ROWS) {
       const el = this.#row();
       for (const ch of row) el.appendChild(this.#key(ch, 'letter'));
