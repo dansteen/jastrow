@@ -374,6 +374,7 @@ a { color: var(--accent); text-decoration: underline; }
 }
 .nav-btn span { font-family: var(--he-font); font-size: 1em; }
 .nav-btn:hover { background: var(--bg-sug-hover); }
+.nav-counter { font-size: .8rem; color: var(--text-dim); }
 .nav-empty { flex: 1; }
 
 /* Source */

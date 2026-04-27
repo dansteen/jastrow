@@ -135,13 +135,13 @@ function renderEntry(entry) {
 
   entryView.innerHTML = `
     <article class="entry-card">
+      ${navHtml}
       <header class="entry-header">
         <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
         ${morphHtml}${altHtml}
       </header>
       <div class="entry-body">${sensesHtml}</div>
       ${refsHtml}
-      ${navHtml}
       <footer class="entry-source">
         <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
         — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
@@ -179,14 +179,16 @@ function buildSenses(senses, depth = 0) {
 }
 
 function buildNav(entry) {
-  if (!entry.prev && !entry.next) return '';
-  const prev = entry.prev
-    ? `<button class="nav-btn" data-hw="${escAttr(entry.prev)}">← <span dir="rtl" lang="he">${escHtml(entry.prev)}</span></button>`
+  const { prev, next, position, total } = dict.neighbors(entry.rid, entry.hw);
+  if (total <= 1) return '';
+  const prevBtn = prev
+    ? `<button class="nav-btn" data-rid="${escAttr(prev.rid)}" data-hw="${escAttr(prev.hw)}">← <span dir="rtl" lang="he">${escHtml(prev.hw)}</span></button>`
     : '<span class="nav-empty"></span>';
-  const next = entry.next
-    ? `<button class="nav-btn" data-hw="${escAttr(entry.next)}"><span dir="rtl" lang="he">${escHtml(entry.next)}</span> →</button>`
+  const counter = `<span class="nav-counter">${position} / ${total}</span>`;
+  const nextBtn = next
+    ? `<button class="nav-btn" data-rid="${escAttr(next.rid)}" data-hw="${escAttr(next.hw)}"><span dir="rtl" lang="he">${escHtml(next.hw)}</span> →</button>`
     : '<span class="nav-empty"></span>';
-  return `<nav class="entry-nav">${prev}${next}</nav>`;
+  return `<nav class="entry-nav">${prevBtn}${counter}${nextBtn}</nav>`;
 }
 
 function extractHwFromRef(ref) {
@@ -259,11 +261,9 @@ document.addEventListener('click', e => {
 
 // Entry nav via delegation
 entryView.addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn[data-hw]');
+  const btn = e.target.closest('.nav-btn[data-rid]');
   if (!btn) return;
-  const hw = btn.dataset.hw;
-  const results = dict.search(hw);
-  if (results.length) openEntry(results[0].rid, results[0].hw);
+  openEntry(btn.dataset.rid, btn.dataset.hw);
 });
 
 
