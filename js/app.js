@@ -237,15 +237,7 @@ themeBtn.addEventListener('click', () => { dark = !dark; applyTheme(dark); });
 // ── Event wiring ──────────────────────────────────────────────────────────────
 searchInput.addEventListener('input', triggerSearch);
 
-searchInput.addEventListener('focus', expandKeyboard);
-
-// Tapping the collapsed keyboard strip expands it and focuses search
-kbContainer.addEventListener('click', e => {
-  if (kbContainer.classList.contains('collapsed')) {
-    expandKeyboard();
-    searchInput.focus();
-  }
-});
+searchInput.addEventListener('click', expandKeyboard);
 
 searchInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') { e.preventDefault(); moveSuggestion(1); }
