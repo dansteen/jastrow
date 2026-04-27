@@ -1,4 +1,4 @@
-const ENTRIES_BASE = '/data/entries/';
+const ENTRIES_BASE = 'data/entries/';
 const NIKUD_RE = /[֑-ׇ]/g;
 const FINAL_MAP = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
 
@@ -18,7 +18,7 @@ export class JastrowSearch {
   #cache = {};     // letter → entries array
 
   async init() {
-    const r = await fetch('/data/index.json');
+    const r = await fetch('data/index.json');
     if (!r.ok) throw new Error(`Failed to load index: ${r.status}`);
     const d = await r.json();
     this.#index = d.entries;

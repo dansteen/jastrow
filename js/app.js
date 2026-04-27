@@ -263,7 +263,7 @@ installBtn.addEventListener('click', async () => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(console.warn);
+    navigator.serviceWorker.register('sw.js').catch(console.warn);
   }
 
   try {
