@@ -105,7 +105,15 @@ a { color: var(--accent); text-decoration: underline; }
 }
 
 /* ── Search area ─────────────────────────────────────────────────────────────── */
-.search-area { position: relative; margin-bottom: 1rem; }
+.search-area { margin-bottom: 1rem; }
+
+/* Square off bottom of search box when suggestions are open */
+.search-area:has(#suggestions:not([hidden])) .search-box {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.search-area:has(#suggestions:not([hidden])) .search-box:focus-within {
+  box-shadow: 0 0 0 3px rgba(26,58,108,.15);
+}
 
 .search-box {
   display: flex;
@@ -144,17 +152,14 @@ a { color: var(--accent); text-decoration: underline; }
 .clear-btn:hover { color: var(--text); }
 
 /* ── Suggestions ─────────────────────────────────────────────────────────────── */
+/* Inline flow: pushes keyboard down instead of overlaying it */
 .suggestions {
-  position: absolute;
-  left: 0; right: 0;
-  top: calc(100% + 4px);
   background: var(--bg-sug);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  z-index: 200;
+  border: 2px solid var(--accent);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
   overflow: hidden;
-  max-height: 320px;
+  max-height: 55dvh;
   overflow-y: auto;
 }
 .sug-item {
