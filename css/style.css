@@ -150,6 +150,23 @@ a { color: var(--accent); text-decoration: underline; }
   transition: color .15s;
 }
 .clear-btn:hover { color: var(--text); }
+.kb-toggle-btn {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .15rem .35rem;
+  flex-shrink: 0;
+  transition: color .15s, border-color .15s;
+  letter-spacing: .03em;
+}
+.kb-toggle-btn:hover { color: var(--text); border-color: var(--accent); }
+.kb-toggle-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
 
 /* ── Suggestions ─────────────────────────────────────────────────────────────── */
 /* Inline flow: pushes keyboard down instead of overlaying it */

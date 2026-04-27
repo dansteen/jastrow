@@ -5,6 +5,7 @@ import { HebrewKeyboard } from './keyboard.js';
 const searchInput  = document.getElementById('searchInput');
 const suggestions  = document.getElementById('suggestions');
 const clearBtn     = document.getElementById('clearBtn');
+const kbToggleBtn  = document.getElementById('kbToggleBtn');
 const entryView    = document.getElementById('entryView');
 const kbContainer  = document.getElementById('keyboard');
 const statusMsg    = document.getElementById('statusMsg');
@@ -200,6 +201,20 @@ function escHtml(s) {
     .replace(/"/g, '&quot;');
 }
 function escAttr(s) { return escHtml(s); }
+
+// ── System keyboard toggle ────────────────────────────────────────────────────
+let systemKbOn = false;
+kbToggleBtn.addEventListener('click', () => {
+  systemKbOn = !systemKbOn;
+  searchInput.inputMode = systemKbOn ? 'text' : 'none';
+  kbToggleBtn.textContent = systemKbOn ? 'עב' : 'ABC';
+  kbToggleBtn.title = systemKbOn ? 'Hide system keyboard' : 'Show system keyboard';
+  kbToggleBtn.setAttribute('aria-label', kbToggleBtn.title);
+  kbToggleBtn.classList.toggle('active', systemKbOn);
+  // Blur then refocus so Android picks up the inputmode change
+  searchInput.blur();
+  searchInput.focus();
+});
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 function applyTheme(dark) {
