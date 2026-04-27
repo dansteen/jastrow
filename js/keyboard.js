@@ -1,9 +1,9 @@
+// Standard Israeli keyboard layout (matches physical keyboard positions)
 const ROWS = [
-  ['א','ב','ג','ד','ה','ו','ז','ח','ט','י'],
-  ['כ','ל','מ','נ','ס','ע','פ','צ','ק','ר'],
-  ['ש','ת'],
+  ['ק','ר','א','ט','ו','ן','ם','פ'],          // Q W E R T Y U I O P
+  ['ש','ד','ג','כ','ע','י','ח','ל','ך','ף'],  // A S D F G H J K L ;
+  ['ז','ס','ב','ה','נ','מ','צ','ת','ץ'],       // Z X C V B N M , .
 ];
-const FINALS = ['ך','ם','ן','ף','ץ']; // ך ם ן ף ץ
 
 export class HebrewKeyboard {
   constructor(container, onKey) {
@@ -21,9 +21,8 @@ export class HebrewKeyboard {
       this.container.appendChild(el);
     }
 
-    const bottom = this.#row('finals');
+    const bottom = this.#row('controls');
     bottom.appendChild(this.#key('⌫', 'action bksp', 'Backspace', 'Backspace'));
-    for (const ch of FINALS) bottom.appendChild(this.#key(ch, 'final'));
     bottom.appendChild(this.#key('space', 'action space', ' ', 'Space'));
     this.container.appendChild(bottom);
   }

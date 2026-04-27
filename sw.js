@@ -1,16 +1,15 @@
 const CACHE = 'jastrow-v1';
-const ENTRY_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUV'.split('');
 
 const SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/search.js',
-  '/js/keyboard.js',
-  '/icons/icon.svg',
-  '/data/index.json',
+  './',
+  './index.html',
+  './manifest.json',
+  './css/style.css',
+  './js/app.js',
+  './js/search.js',
+  './js/keyboard.js',
+  './icons/icon.svg',
+  './data/index.json',
 ];
 
 self.addEventListener('install', e => {
@@ -32,7 +31,6 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Only cache GET requests to our own origin
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
@@ -41,8 +39,7 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(response => {
-        // Cache entry JSON files as they're loaded
-        if (url.pathname.startsWith('/data/')) {
+        if (response.ok) {
           caches.open(CACHE).then(c => c.put(e.request, response.clone()));
         }
         return response;
@@ -51,17 +48,16 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// Background-cache all entry files when the app requests it
+// Pre-cache all entry chunks on request from the app
 self.addEventListener('message', e => {
-  if (e.data === 'prefetch-entries') {
-    caches.open(CACHE).then(async cache => {
-      for (const letter of ENTRY_LETTERS) {
-        const url = `/data/entries/${letter}.json`;
-        const cached = await cache.match(url);
-        if (!cached) {
-          fetch(url).then(r => r.ok && cache.put(url, r)).catch(() => {});
-        }
+  if (e.data !== 'prefetch-entries') return;
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUV'.split('');
+  caches.open(CACHE).then(async cache => {
+    for (const letter of letters) {
+      const url = new URL(`./data/entries/${letter}.json`, self.location.href).href;
+      if (!await cache.match(url)) {
+        fetch(url).then(r => r.ok && cache.put(url, r)).catch(() => {});
       }
-    });
-  }
+    }
+  });
 });
