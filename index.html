@@ -13,7 +13,8 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -36,6 +37,7 @@
 
     <div class="search-area" role="search">
       <div class="search-box">
+        <button id="kbToggleBtn" class="kb-toggle-btn" title="Show system keyboard" aria-label="Show system keyboard">ABC</button>
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input
           type="search"
@@ -53,7 +55,6 @@
           aria-controls="suggestions"
           aria-expanded="false"
         >
-        <button id="kbToggleBtn" class="kb-toggle-btn" title="Show system keyboard" aria-label="Show system keyboard">ABC</button>
         <button id="clearBtn" class="clear-btn" title="Clear search" aria-label="Clear search" hidden>✕</button>
       </div>
       <div
