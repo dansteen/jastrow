@@ -1,6 +1,8 @@
 const ENTRIES_BASE = 'data/entries/';
 const NIKUD_RE = /[֑-ׇ]/g;
 const FINAL_MAP = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
+const SUPER_RE  = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/;
+const ROMAN_RE  = /\s+[IVXLCDM]+$/;
 
 export function isHebrew(s) {
   return /[א-ת]/.test(s);
@@ -10,6 +12,11 @@ export function normalizeHe(s) {
   return s
     .replace(NIKUD_RE, '')
     .replace(/[ךםןףץ]/g, c => FINAL_MAP[c]);
+}
+
+// Looser key for grouping same-root entries (strips superscripts and Roman numerals)
+function groupKey(hw) {
+  return normalizeHe(hw).replace(SUPER_RE, '').replace(ROMAN_RE, '').trimEnd();
 }
 
 export class JastrowSearch {
@@ -29,7 +36,7 @@ export class JastrowSearch {
     this.#groups = new Map();
     for (let i = 0; i < this.#index.length; i++) {
       const [hw, rid] = this.#index[i];
-      const key = this.#normed[i];
+      const key = groupKey(hw);
       if (!this.#groups.has(key)) this.#groups.set(key, []);
       this.#groups.get(key).push({ hw, rid });
     }
@@ -84,7 +91,7 @@ export class JastrowSearch {
   // Returns { prev, next, position, total } for same-spelling navigation.
   // prev/next are {hw, rid} or null.
   neighbors(rid, hw) {
-    const group = this.#groups?.get(normalizeHe(hw)) ?? [];
+    const group = this.#groups?.get(groupKey(hw)) ?? [];
     const idx = group.findIndex(e => e.rid === rid);
     if (idx === -1) return { prev: null, next: null, position: 1, total: group.length };
     return {
