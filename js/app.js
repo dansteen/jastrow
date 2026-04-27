@@ -117,8 +117,15 @@ async function openEntry(rid, hw) {
     const members = dict.groupFor(hw);
     const group = members.length ? members : [{ hw, rid }];
     const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
-    if (entries.length) renderEntries(entries);
-    else entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    if (entries.length) {
+      renderEntries(entries);
+      if (entries[0]?.rid !== rid) {
+        document.getElementById(`entry-${rid}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    }
   } catch (e) {
     entryView.innerHTML = '<p class="entry-err">Could not load entry — are you offline?</p>';
   }
@@ -149,17 +156,13 @@ function entryCardHtml(entry) {
     ? `<div class="entry-refs"><span class="refs-label">Refs:</span> ${entry.refs.map(escHtml).join(' · ')}</div>`
     : '';
   return `
-    <article class="entry-card">
+    <article class="entry-card" id="entry-${escAttr(entry.rid)}">
       <header class="entry-header">
         <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
         ${morphHtml}${altHtml}
       </header>
       <div class="entry-body">${sensesHtml}</div>
       ${refsHtml}
-      <footer class="entry-source">
-        <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
-        — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
-      </footer>
     </article>`;
 }
 

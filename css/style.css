@@ -355,14 +355,18 @@ a { color: var(--accent); text-decoration: underline; }
 }
 .refs-label { font-weight: 600; color: var(--text-soft); }
 
-/* Source */
-.entry-source {
-  margin-top: .75rem;
+/* ── Page footer ─────────────────────────────────────────────────────────────── */
+.app-footer {
+  text-align: center;
   font-size: .75rem;
   color: var(--text-dim);
+  padding: 1rem 1rem 1.5rem;
   border-top: 1px solid var(--border);
-  padding-top: .5rem;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
 }
+.app-footer a { color: var(--text-dim); }
 
 /* ── Status bar ──────────────────────────────────────────────────────────────── */
 .status-bar {
