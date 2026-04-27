@@ -9,7 +9,6 @@ const kbToggleBtn  = document.getElementById('kbToggleBtn');
 const entryView    = document.getElementById('entryView');
 const kbContainer  = document.getElementById('keyboard');
 const statusMsg    = document.getElementById('statusMsg');
-const installBtn   = document.getElementById('installBtn');
 const themeBtn     = document.getElementById('themeBtn');
 
 // ── State ───────────────────────────────────────────────────────────────────
@@ -267,20 +266,6 @@ entryView.addEventListener('click', e => {
   if (results.length) openEntry(results[0].rid, results[0].hw);
 });
 
-// ── PWA install ───────────────────────────────────────────────────────────────
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.hidden = false;
-});
-installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') installBtn.hidden = true;
-  deferredPrompt = null;
-});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
