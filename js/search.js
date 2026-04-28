@@ -19,6 +19,11 @@ function groupKey(hw) {
   return normalizeHe(hw).replace(SUPER_RE, '').replace(ROMAN_RE, '').trimEnd();
 }
 
+// Clean display form: keep nikud but strip disambiguation suffixes
+function displayHw(hw) {
+  return hw.replace(SUPER_RE, '').replace(ROMAN_RE, '').trimEnd();
+}
+
 export class JastrowSearch {
   #index = null;   // [[hw, rid, gloss], ...]
   #normed = null;  // normalized headwords (parallel array)
@@ -54,11 +59,14 @@ export class JastrowSearch {
   }
 
   #searchHe(norm, limit) {
-    const out = [];
+    const out = [], seen = new Set();
     for (let i = 0; i < this.#normed.length; i++) {
       if (this.#normed[i].startsWith(norm)) {
         const [hw, rid, gloss] = this.#index[i];
-        out.push({ hw, rid, gloss });
+        const key = groupKey(hw);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({ hw: displayHw(hw), rid, gloss });
         if (out.length === limit) break;
       }
     }
@@ -67,12 +75,17 @@ export class JastrowSearch {
 
   #searchEn(q, limit) {
     const exact = [], word = [], partial = [];
+    const seen = new Set();
     const wordRe = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
     for (const [hw, rid, gloss] of this.#index) {
+      const key = groupKey(hw);
+      if (seen.has(key)) continue;
+      seen.add(key);
       const g = gloss.toLowerCase();
-      if (g.startsWith(q)) exact.push({ hw, rid, gloss });
-      else if (wordRe.test(gloss)) word.push({ hw, rid, gloss });
-      else if (g.includes(q)) partial.push({ hw, rid, gloss });
+      const dhw = displayHw(hw);
+      if (g.startsWith(q)) exact.push({ hw: dhw, rid, gloss });
+      else if (wordRe.test(gloss)) word.push({ hw: dhw, rid, gloss });
+      else if (g.includes(q)) partial.push({ hw: dhw, rid, gloss });
       if (exact.length + word.length + partial.length >= limit * 5) break;
     }
     return [...exact, ...word, ...partial].slice(0, limit);
@@ -102,9 +115,10 @@ export class JastrowSearch {
     };
   }
 
-  // Returns all {hw, rid} entries that share the same root spelling.
+  // Returns all {hw, rid} entries that share the same root spelling, base form first.
   groupFor(hw) {
-    return this.#groups?.get(groupKey(hw)) ?? [];
+    const group = this.#groups?.get(groupKey(hw)) ?? [];
+    return [...group].sort((a, b) => (displayHw(b.hw) === b.hw) - (displayHw(a.hw) === a.hw));
   }
 
   async prefetchAll() {

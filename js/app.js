@@ -110,22 +110,14 @@ async function openEntry(rid, hw) {
 
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
-  entryView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   collapseKeyboard();
 
   try {
     const members = dict.groupFor(hw);
     const group = members.length ? members : [{ hw, rid }];
     const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
-    if (entries.length) {
-      renderEntries(entries);
-      if (entries[0]?.rid !== rid) {
-        document.getElementById(`entry-${rid}`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    } else {
-      entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
-    }
+    if (entries.length) renderEntries(entries);
+    else entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
   } catch (e) {
     entryView.innerHTML = '<p class="entry-err">Could not load entry — are you offline?</p>';
   }
