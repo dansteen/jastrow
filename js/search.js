@@ -54,10 +54,13 @@ export class JastrowSearch {
   }
 
   #searchHe(norm, limit) {
-    const out = [];
+    const out = [], seen = new Set();
     for (let i = 0; i < this.#normed.length; i++) {
       if (this.#normed[i].startsWith(norm)) {
         const [hw, rid, gloss] = this.#index[i];
+        const key = groupKey(hw);
+        if (seen.has(key)) continue;
+        seen.add(key);
         out.push({ hw, rid, gloss });
         if (out.length === limit) break;
       }
@@ -67,8 +70,12 @@ export class JastrowSearch {
 
   #searchEn(q, limit) {
     const exact = [], word = [], partial = [];
+    const seen = new Set();
     const wordRe = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
     for (const [hw, rid, gloss] of this.#index) {
+      const key = groupKey(hw);
+      if (seen.has(key)) continue;
+      seen.add(key);
       const g = gloss.toLowerCase();
       if (g.startsWith(q)) exact.push({ hw, rid, gloss });
       else if (wordRe.test(gloss)) word.push({ hw, rid, gloss });
