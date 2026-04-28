@@ -1,3 +1,5 @@
+import { getChunk, putChunk } from './idb.js';
+
 const ENTRIES_BASE = 'data/entries/';
 const NIKUD_RE = /[֑-ׇ]/g;
 const FINAL_MAP = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
@@ -94,9 +96,15 @@ export class JastrowSearch {
   async entry(rid) {
     const letter = rid[0];
     if (!this.#cache[letter]) {
-      const r = await fetch(`${ENTRIES_BASE}${letter}.json`);
-      if (!r.ok) throw new Error(`Failed to load entries/${letter}.json`);
-      this.#cache[letter] = await r.json();
+      const idb = await getChunk(letter).catch(() => null);
+      if (idb) {
+        this.#cache[letter] = idb;
+      } else {
+        const r = await fetch(`${ENTRIES_BASE}${letter}.json`);
+        if (!r.ok) throw new Error(`Failed to load entries/${letter}.json`);
+        this.#cache[letter] = await r.json();
+        putChunk(letter, this.#cache[letter]).catch(() => {});
+      }
     }
     return this.#cache[letter].find(e => e.rid === rid) ?? null;
   }
