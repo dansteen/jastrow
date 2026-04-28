@@ -103,7 +103,7 @@ function selectActive() {
 }
 
 // ── Scroll utility ────────────────────────────────────────────────────────────
-function animatedScroll(y, duration = 150) {
+function animatedScroll(y, duration = 80) {
   const from = window.scrollY;
   const dist = y - from;
   if (!dist) return;
