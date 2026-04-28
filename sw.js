@@ -1,4 +1,4 @@
-const CACHE = 'jastrow-v1';
+const CACHE = 'jastrow-v2';
 
 const SHELL = [
   './',
@@ -9,6 +9,8 @@ const SHELL = [
   './js/search.js',
   './js/keyboard.js',
   './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
   './data/index.json',
 ];
 

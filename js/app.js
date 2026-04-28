@@ -5,10 +5,10 @@ import { HebrewKeyboard } from './keyboard.js';
 const searchInput  = document.getElementById('searchInput');
 const suggestions  = document.getElementById('suggestions');
 const clearBtn     = document.getElementById('clearBtn');
+const kbToggleBtn  = document.getElementById('kbToggleBtn');
 const entryView    = document.getElementById('entryView');
 const kbContainer  = document.getElementById('keyboard');
 const statusMsg    = document.getElementById('statusMsg');
-const installBtn   = document.getElementById('installBtn');
 const themeBtn     = document.getElementById('themeBtn');
 
 // ── State ───────────────────────────────────────────────────────────────────
@@ -16,6 +16,10 @@ const dict = new JastrowSearch();
 let debounce = null;
 let activeIdx = -1;   // keyboard-selected suggestion index
 let lastQuery = '';
+
+// ── Keyboard collapse ────────────────────────────────────────────────────────
+function collapseKeyboard() { kbContainer.classList.add('collapsed'); }
+function expandKeyboard()   { kbContainer.classList.remove('collapsed'); }
 
 // ── Keyboard ─────────────────────────────────────────────────────────────────
 new HebrewKeyboard(kbContainer, key => {
@@ -107,43 +111,28 @@ async function openEntry(rid, hw) {
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
   entryView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  collapseKeyboard();
 
   try {
-    const entry = await dict.entry(rid);
-    if (entry) renderEntry(entry);
-    else entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    const members = dict.groupFor(hw);
+    const group = members.length ? members : [{ hw, rid }];
+    const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
+    if (entries.length) {
+      renderEntries(entries);
+      if (entries[0]?.rid !== rid) {
+        document.getElementById(`entry-${rid}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    }
   } catch (e) {
     entryView.innerHTML = '<p class="entry-err">Could not load entry — are you offline?</p>';
   }
 }
 
-function renderEntry(entry) {
-  const sensesHtml = buildSenses(entry.senses || []);
-  const altHtml = entry.alt?.length
-    ? `<div class="entry-alt">Also: <span dir="rtl" lang="he">${entry.alt.map(escHtml).join(', ')}</span></div>`
-    : '';
-  const morphHtml = entry.morph ? `<span class="entry-morph">${escHtml(entry.morph)}</span>` : '';
-  const refsHtml = entry.refs?.length
-    ? `<div class="entry-refs"><span class="refs-label">Refs:</span> ${entry.refs.map(escHtml).join(' · ')}</div>`
-    : '';
-  const navHtml = buildNav(entry);
-
-  entryView.innerHTML = `
-    <article class="entry-card">
-      <header class="entry-header">
-        <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
-        ${morphHtml}${altHtml}
-      </header>
-      <div class="entry-body">${sensesHtml}</div>
-      ${refsHtml}
-      ${navHtml}
-      <footer class="entry-source">
-        <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
-        — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
-      </footer>
-    </article>`;
-
-  // Wire cross-reference links
+function renderEntries(entries) {
+  entryView.innerHTML = entries.map(entryCardHtml).join('');
   entryView.querySelectorAll('a.refLink, [data-ref]').forEach(a => {
     a.setAttribute('href', '#');
     a.addEventListener('click', e => {
@@ -155,6 +144,29 @@ function renderEntry(entry) {
       }
     });
   });
+}
+
+function entryCardHtml(entry) {
+  const sensesHtml = buildSenses(entry.senses || []);
+  const altHtml = entry.alt?.length
+    ? `<div class="entry-alt">Also: <span dir="rtl" lang="he">${entry.alt.map(escHtml).join(', ')}</span></div>`
+    : '';
+  const morphHtml = entry.morph ? `<span class="entry-morph">${escHtml(entry.morph)}</span>` : '';
+  const refsHtml = entry.refs?.length
+    ? `<div class="entry-refs"><span class="refs-label">Refs:</span> ${entry.refs.map(escHtml).join(' · ')}</div>`
+    : '';
+  return `
+    <article class="entry-card" id="entry-${escAttr(entry.rid)}">
+      <header class="entry-header">
+        <button class="back-top-btn" aria-label="Back to top">↑ Top</button>
+        <div class="entry-hw-wrap">
+          <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
+          ${morphHtml}${altHtml}
+        </div>
+      </header>
+      <div class="entry-body">${sensesHtml}</div>
+      ${refsHtml}
+    </article>`;
 }
 
 function buildSenses(senses, depth = 0) {
@@ -171,17 +183,6 @@ function buildSenses(senses, depth = 0) {
   }
   html += `</${tag}>`;
   return html;
-}
-
-function buildNav(entry) {
-  if (!entry.prev && !entry.next) return '';
-  const prev = entry.prev
-    ? `<button class="nav-btn" data-hw="${escAttr(entry.prev)}">← <span dir="rtl" lang="he">${escHtml(entry.prev)}</span></button>`
-    : '<span class="nav-empty"></span>';
-  const next = entry.next
-    ? `<button class="nav-btn" data-hw="${escAttr(entry.next)}"><span dir="rtl" lang="he">${escHtml(entry.next)}</span> →</button>`
-    : '<span class="nav-empty"></span>';
-  return `<nav class="entry-nav">${prev}${next}</nav>`;
 }
 
 function extractHwFromRef(ref) {
@@ -201,6 +202,20 @@ function escHtml(s) {
 }
 function escAttr(s) { return escHtml(s); }
 
+// ── System keyboard toggle ────────────────────────────────────────────────────
+let systemKbOn = false;
+kbToggleBtn.addEventListener('click', () => {
+  systemKbOn = !systemKbOn;
+  searchInput.inputMode = systemKbOn ? 'text' : 'none';
+  kbToggleBtn.textContent = systemKbOn ? 'עב' : 'ABC';
+  kbToggleBtn.title = systemKbOn ? 'Hide system keyboard' : 'Show system keyboard';
+  kbToggleBtn.setAttribute('aria-label', kbToggleBtn.title);
+  kbToggleBtn.classList.toggle('active', systemKbOn);
+  // Blur then refocus so Android picks up the inputmode change
+  searchInput.blur();
+  searchInput.focus();
+});
+
 // ── Theme ─────────────────────────────────────────────────────────────────────
 function applyTheme(dark) {
   document.documentElement.classList.toggle('dark', dark);
@@ -216,6 +231,8 @@ themeBtn.addEventListener('click', () => { dark = !dark; applyTheme(dark); });
 
 // ── Event wiring ──────────────────────────────────────────────────────────────
 searchInput.addEventListener('input', triggerSearch);
+
+searchInput.addEventListener('click', expandKeyboard);
 
 searchInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') { e.preventDefault(); moveSuggestion(1); }
@@ -236,29 +253,10 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.search-area')) hideSuggestions();
 });
 
-// Entry nav via delegation
 entryView.addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn[data-hw]');
-  if (!btn) return;
-  const hw = btn.dataset.hw;
-  const results = dict.search(hw);
-  if (results.length) openEntry(results[0].rid, results[0].hw);
+  if (e.target.closest('.back-top-btn')) window.scrollTo(0, 0);
 });
 
-// ── PWA install ───────────────────────────────────────────────────────────────
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.hidden = false;
-});
-installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') installBtn.hidden = true;
-  deferredPrompt = null;
-});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
