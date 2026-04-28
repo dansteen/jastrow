@@ -158,8 +158,11 @@ function entryCardHtml(entry) {
   return `
     <article class="entry-card" id="entry-${escAttr(entry.rid)}">
       <header class="entry-header">
-        <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
-        ${morphHtml}${altHtml}
+        <button class="back-top-btn" aria-label="Back to top">↑ Top</button>
+        <div class="entry-hw-wrap">
+          <h2 class="entry-hw" dir="rtl" lang="he">${escHtml(entry.hw)}</h2>
+          ${morphHtml}${altHtml}
+        </div>
       </header>
       <div class="entry-body">${sensesHtml}</div>
       ${refsHtml}
@@ -248,6 +251,10 @@ clearBtn.addEventListener('click', () => {
 
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-area')) hideSuggestions();
+});
+
+entryView.addEventListener('click', e => {
+  if (e.target.closest('.back-top-btn')) window.scrollTo(0, 0);
 });
 
 
