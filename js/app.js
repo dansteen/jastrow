@@ -103,7 +103,7 @@ function selectActive() {
 }
 
 // ── Scroll utility ────────────────────────────────────────────────────────────
-function animatedScroll(y, duration = 250) {
+function animatedScroll(y, duration = 150) {
   const from = window.scrollY;
   const dist = y - from;
   if (!dist) return;
@@ -129,6 +129,7 @@ async function openEntry(rid, hw) {
 
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
+  scrollToEl(entryView);  // fires immediately on click, no waiting for data
   collapseKeyboard();
 
   try {
@@ -137,10 +138,9 @@ async function openEntry(rid, hw) {
     const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
     if (entries.length) {
       renderEntries(entries);
-      const target = entries[0]?.rid !== rid
-        ? document.getElementById(`entry-${rid}`)
-        : entryView;
-      scrollToEl(target);
+      if (entries[0]?.rid !== rid) {
+        scrollToEl(document.getElementById(`entry-${rid}`));
+      }
     } else {
       entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
     }
