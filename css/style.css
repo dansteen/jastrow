@@ -280,6 +280,7 @@ a { color: var(--accent); text-decoration: underline; }
   border-radius: var(--radius);
   padding: 1.25rem 1.4rem;
   box-shadow: var(--shadow);
+  scroll-margin-top: 3.5rem;
 }
 .entry-card + .entry-card { margin-top: 1rem; }
 .entry-header {
