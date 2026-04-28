@@ -126,11 +126,12 @@ export class JastrowSearch {
     const letters = [...new Set(this.#index.map(([, rid]) => rid[0]))];
     const total = letters.length;
     let done = 0;
-    for (const letter of letters) {
+    await Promise.all(letters.map(async letter => {
       if (!this.#cache[letter]) {
         await this.entry(letter + '00000').catch(() => {});
       }
       onProgress?.(++done / total);
+    }));
     }
   }
 }
