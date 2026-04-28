@@ -115,9 +115,10 @@ export class JastrowSearch {
     };
   }
 
-  // Returns all {hw, rid} entries that share the same root spelling.
+  // Returns all {hw, rid} entries that share the same root spelling, base form first.
   groupFor(hw) {
-    return this.#groups?.get(groupKey(hw)) ?? [];
+    const group = this.#groups?.get(groupKey(hw)) ?? [];
+    return [...group].sort((a, b) => (displayHw(b.hw) === b.hw) - (displayHw(a.hw) === a.hw));
   }
 
   async prefetchAll() {
