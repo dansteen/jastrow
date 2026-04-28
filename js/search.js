@@ -121,13 +121,16 @@ export class JastrowSearch {
     return [...group].sort((a, b) => (displayHw(b.hw) === b.hw) - (displayHw(a.hw) === a.hw));
   }
 
-  async prefetchAll() {
+  async prefetchAll(onProgress) {
     if (!this.#index) return;
     const letters = [...new Set(this.#index.map(([, rid]) => rid[0]))];
+    const total = letters.length;
+    let done = 0;
     for (const letter of letters) {
       if (!this.#cache[letter]) {
         await this.entry(letter + '00000').catch(() => {});
       }
+      onProgress?.(++done / total);
     }
   }
 }
