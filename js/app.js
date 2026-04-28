@@ -110,7 +110,7 @@ async function openEntry(rid, hw) {
 
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
-  entryView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  entryView.scrollIntoView({ behavior: 'instant', block: 'nearest' });
   collapseKeyboard();
 
   try {
@@ -121,7 +121,7 @@ async function openEntry(rid, hw) {
       renderEntries(entries);
       if (entries[0]?.rid !== rid) {
         document.getElementById(`entry-${rid}`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          ?.scrollIntoView({ behavior: 'instant', block: 'start' });
       }
     } else {
       entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
