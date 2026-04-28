@@ -290,10 +290,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') installModal
     statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
     searchInput.focus();
     // Background prefetch of all entry chunks for full offline support
-    setTimeout(() => dict.prefetchAll(p => {
+    dict.prefetchAll(p => {
       offlineBar.style.width = `${p * 100}%`;
       if (p >= 1) offlineBtn.disabled = false;
-    }).catch(() => {}), 1000);
+    }).catch(() => {});
   } catch {
     statusMsg.textContent = 'Failed to load — check your connection.';
   }
