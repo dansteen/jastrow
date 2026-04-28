@@ -102,25 +102,6 @@ function selectActive() {
   if (item) openEntry(item.dataset.rid, item.dataset.hw);
 }
 
-// ── Scroll utility ────────────────────────────────────────────────────────────
-function smoothScroll(y, duration = 220) {
-  const from = window.scrollY;
-  const dist = y - from;
-  if (!dist) return;
-  const t0 = performance.now();
-  (function step(now) {
-    const p = Math.min((now - t0) / duration, 1);
-    window.scrollTo(0, from + dist * (1 - (1 - p) ** 3));  // cubic ease-out
-    if (p < 1) requestAnimationFrame(step);
-  })(t0);
-}
-
-function scrollToEl(el) {
-  if (!el) return;
-  const HEADER = 56; // sticky header height (~3.5rem)
-  smoothScroll(window.scrollY + el.getBoundingClientRect().top - HEADER);
-}
-
 // ── Entry display ─────────────────────────────────────────────────────────────
 async function openEntry(rid, hw) {
   hideSuggestions();
@@ -129,7 +110,7 @@ async function openEntry(rid, hw) {
 
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
-  scrollToEl(entryView);
+  entryView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   collapseKeyboard();
 
   try {
@@ -139,7 +120,8 @@ async function openEntry(rid, hw) {
     if (entries.length) {
       renderEntries(entries);
       if (entries[0]?.rid !== rid) {
-        scrollToEl(document.getElementById(`entry-${rid}`));
+        document.getElementById(`entry-${rid}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
       entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
@@ -272,7 +254,7 @@ document.addEventListener('click', e => {
 });
 
 entryView.addEventListener('click', e => {
-  if (e.target.closest('.back-top-btn')) smoothScroll(0);
+  if (e.target.closest('.back-top-btn')) window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 
