@@ -1,4 +1,4 @@
-const CACHE = 'jastrow-v2';
+const CACHE = 'jastrow-v4';
 
 const SHELL = [
   './',

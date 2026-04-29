@@ -28,7 +28,17 @@
         <span class="title-en">Jastrow</span>
       </h1>
       <div class="header-actions">
-<button id="themeBtn"   class="btn-icon" title="Toggle dark mode" aria-label="Toggle dark mode">☽</button>
+        <div class="offline-wrap">
+          <div id="offlineLoading" class="offline-loading">
+            <svg class="offline-ring" viewBox="0 0 36 36" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9" class="offline-ring-bg"/>
+              <circle cx="18" cy="18" r="15.9" class="offline-ring-fill" id="offlineRingFill"/>
+            </svg>
+            <span class="offline-dl-label">Loading data</span>
+          </div>
+          <button id="offlineBtn" class="offline-ready-btn" title="Install for offline use" aria-label="Install for offline use" hidden>Install offline</button>
+        </div>
+        <button id="themeBtn" class="btn-icon" title="Toggle dark mode" aria-label="Toggle dark mode">☽</button>
       </div>
     </div>
   </header>
@@ -40,7 +50,7 @@
         <button id="kbToggleBtn" class="kb-toggle-btn" title="Show system keyboard" aria-label="Show system keyboard">ABC</button>
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input
-          type="search"
+          type="text"
           id="searchInput"
           class="search-input"
           placeholder="Search in Hebrew/Aramaic or English…"
@@ -78,6 +88,24 @@
     <em>A Dictionary of the Targumim, the Talmud Babli and Yerushalmi, and the Midrashic Literature</em>
     — Marcus Jastrow (1903). Public domain. Digitized by <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>.
   </footer>
+</div>
+
+<div id="welcomeModal" class="install-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
+  <div class="install-modal-box">
+    <h2 class="install-modal-title" id="welcomeModalTitle">Welcome to Jastrow</h2>
+    <p class="install-modal-text">A searchable edition of Marcus Jastrow's 1903 dictionary of the Targumim, Talmud Babli and Yerushalmi, and the Midrashic Literature — the definitive reference for Talmudic Aramaic and Hebrew.</p>
+    <p class="install-modal-text">Thanks to <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a> for digitizing the original text and making it freely available.</p>
+    <p class="install-modal-text">This app can be installed on your device and used entirely offline — tap <strong>Install offline</strong> in the header once the data has finished loading.</p>
+    <button id="welcomeModalClose" class="install-modal-close">Get started</button>
+  </div>
+</div>
+
+<div id="installModal" class="install-modal hidden" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
+  <div class="install-modal-box">
+    <h2 class="install-modal-title" id="installModalTitle">Install for Offline Use</h2>
+    <p id="installInstructions" class="install-modal-text"></p>
+    <button id="installModalClose" class="install-modal-close">Got it</button>
+  </div>
 </div>
 
 <script type="module" src="js/app.js"></script>

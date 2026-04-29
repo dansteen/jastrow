@@ -1,4 +1,35 @@
 const ENTRIES_BASE = 'data/entries/';
+
+// ── IndexedDB helpers (inlined to avoid a fragile module dependency) ──────────
+const _IDB_NAME = 'jastrow', _IDB_VER = 1, _IDB_STORE = 'chunks';
+let _idb = null;
+
+function _openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(_IDB_NAME, _IDB_VER);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(_IDB_STORE);
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function _db() { if (!_idb) _idb = await _openIDB(); return _idb; }
+
+async function getChunk(letter) {
+  const store = (await _db()).transaction(_IDB_STORE).objectStore(_IDB_STORE);
+  return new Promise((resolve, reject) => {
+    const req = store.get(letter);
+    req.onsuccess = e => resolve(e.target.result ?? null);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function putChunk(letter, data) {
+  const store = (await _db()).transaction(_IDB_STORE, 'readwrite').objectStore(_IDB_STORE);
+  return new Promise((resolve, reject) => {
+    const req = store.put(data, letter);
+    req.onsuccess = () => resolve();
+    req.onerror   = e => reject(e.target.error);
+  });
+}
 const NIKUD_RE = /[֑-ׇ]/g;
 const FINAL_MAP = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
 const SUPER_RE  = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/;
@@ -94,9 +125,15 @@ export class JastrowSearch {
   async entry(rid) {
     const letter = rid[0];
     if (!this.#cache[letter]) {
-      const r = await fetch(`${ENTRIES_BASE}${letter}.json`);
-      if (!r.ok) throw new Error(`Failed to load entries/${letter}.json`);
-      this.#cache[letter] = await r.json();
+      const idb = await getChunk(letter).catch(() => null);
+      if (idb) {
+        this.#cache[letter] = idb;
+      } else {
+        const r = await fetch(`${ENTRIES_BASE}${letter}.json`);
+        if (!r.ok) throw new Error(`Failed to load entries/${letter}.json`);
+        this.#cache[letter] = await r.json();
+        putChunk(letter, this.#cache[letter]).catch(() => {});
+      }
     }
     return this.#cache[letter].find(e => e.rid === rid) ?? null;
   }
@@ -121,13 +158,16 @@ export class JastrowSearch {
     return [...group].sort((a, b) => (displayHw(b.hw) === b.hw) - (displayHw(a.hw) === a.hw));
   }
 
-  async prefetchAll() {
+  async prefetchAll(onProgress) {
     if (!this.#index) return;
     const letters = [...new Set(this.#index.map(([, rid]) => rid[0]))];
-    for (const letter of letters) {
+    const total = letters.length;
+    let done = 0;
+    await Promise.all(letters.map(async letter => {
       if (!this.#cache[letter]) {
         await this.entry(letter + '00000').catch(() => {});
       }
-    }
+      onProgress?.(++done / total);
+    }));
   }
 }

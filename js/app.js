@@ -2,14 +2,22 @@ import { JastrowSearch, isHebrew } from './search.js';
 import { HebrewKeyboard } from './keyboard.js';
 
 // ── DOM refs ────────────────────────────────────────────────────────────────
-const searchInput  = document.getElementById('searchInput');
-const suggestions  = document.getElementById('suggestions');
-const clearBtn     = document.getElementById('clearBtn');
-const kbToggleBtn  = document.getElementById('kbToggleBtn');
-const entryView    = document.getElementById('entryView');
-const kbContainer  = document.getElementById('keyboard');
-const statusMsg    = document.getElementById('statusMsg');
-const themeBtn     = document.getElementById('themeBtn');
+const searchInput      = document.getElementById('searchInput');
+const suggestions      = document.getElementById('suggestions');
+const clearBtn         = document.getElementById('clearBtn');
+const kbToggleBtn      = document.getElementById('kbToggleBtn');
+const entryView        = document.getElementById('entryView');
+const kbContainer      = document.getElementById('keyboard');
+const statusMsg        = document.getElementById('statusMsg');
+const themeBtn         = document.getElementById('themeBtn');
+const offlineBtn       = document.getElementById('offlineBtn');
+const offlineLoading   = document.getElementById('offlineLoading');
+const offlineRingFill  = document.getElementById('offlineRingFill');
+const installModal     = document.getElementById('installModal');
+const installInstr     = document.getElementById('installInstructions');
+const installModalClose = document.getElementById('installModalClose');
+const welcomeModal     = document.getElementById('welcomeModal');
+const welcomeModalClose = document.getElementById('welcomeModalClose');
 
 // ── State ───────────────────────────────────────────────────────────────────
 const dict = new JastrowSearch();
@@ -249,6 +257,41 @@ entryView.addEventListener('click', e => {
   if (e.target.closest('.back-top-btn')) window.scrollTo(0, 0);
 });
 
+// ── Offline install modal ──────────────────────────────────────────────────────
+function installInstructions() {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua) && !/Chrome/.test(ua))
+    return 'Tap the Share button (the box with an arrow pointing up) at the bottom of Safari, then tap "Add to Home Screen".';
+  if (/SamsungBrowser/.test(ua))
+    return 'Tap the menu icon (☰) and select "Add page to" → "Home screen".';
+  if (/Android/.test(ua))
+    return 'Tap the menu (⋮) in the top-right corner of Chrome and select "Add to Home screen" or "Install app".';
+  if (/Edg\//.test(ua))
+    return 'Click the install icon (+) in the address bar, or open the menu (…) and choose "Apps" → "Install this site as an app".';
+  if (/Firefox/.test(ua))
+    return 'Tap the menu (⋮) and look for "Install" or "Add to Home Screen". Some Firefox versions may not support installation.';
+  return 'Look for an install icon in your browser\'s address bar, or find "Add to Home Screen" / "Install app" in the browser menu.';
+}
+
+offlineBtn.addEventListener('click', () => {
+  installInstr.textContent = installInstructions();
+  installModal.classList.remove('hidden');
+});
+installModalClose.addEventListener('click', () => installModal.classList.add('hidden'));
+installModal.addEventListener('click', e => { if (e.target === installModal) installModal.classList.add('hidden'); });
+
+// ── Welcome modal ──────────────────────────────────────────────────────────────
+function dismissWelcome() {
+  welcomeModal.style.display = 'none';
+  localStorage.setItem('welcomed', '1');
+}
+if (localStorage.getItem('welcomed')) {
+  welcomeModal.style.display = 'none';
+}
+welcomeModalClose.addEventListener('click', dismissWelcome);
+welcomeModal.addEventListener('click', e => { if (e.target === welcomeModal) dismissWelcome(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { installModal.classList.add('hidden'); dismissWelcome(); } });
+
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
@@ -261,7 +304,13 @@ entryView.addEventListener('click', e => {
     statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
     searchInput.focus();
     // Background prefetch of all entry chunks for full offline support
-    setTimeout(() => dict.prefetchAll().catch(() => {}), 5000);
+    dict.prefetchAll(p => {
+      offlineRingFill.style.strokeDashoffset = (100 * (1 - p)).toFixed(1);
+      if (p >= 1) {
+        offlineLoading.hidden = true;
+        offlineBtn.hidden = false;
+      }
+    }).catch(() => {});
   } catch {
     statusMsg.textContent = 'Failed to load — check your connection.';
   }
