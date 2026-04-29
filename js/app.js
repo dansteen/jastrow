@@ -11,7 +11,8 @@ const kbContainer      = document.getElementById('keyboard');
 const statusMsg        = document.getElementById('statusMsg');
 const themeBtn         = document.getElementById('themeBtn');
 const offlineBtn       = document.getElementById('offlineBtn');
-const offlineBar       = document.getElementById('offlineBar');
+const offlineLoading   = document.getElementById('offlineLoading');
+const offlineRingFill  = document.getElementById('offlineRingFill');
 const installModal     = document.getElementById('installModal');
 const installInstr     = document.getElementById('installInstructions');
 const installModalClose = document.getElementById('installModalClose');
@@ -291,8 +292,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') installModal
     searchInput.focus();
     // Background prefetch of all entry chunks for full offline support
     dict.prefetchAll(p => {
-      offlineBar.style.width = `${p * 100}%`;
-      if (p >= 1) offlineBtn.disabled = false;
+      offlineRingFill.style.strokeDashoffset = (100 * (1 - p)).toFixed(1);
+      if (p >= 1) {
+        offlineLoading.hidden = true;
+        offlineBtn.hidden = false;
+      }
     }).catch(() => {});
   } catch {
     statusMsg.textContent = 'Failed to load — check your connection.';
