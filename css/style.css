@@ -103,12 +103,12 @@ a { color: var(--accent); text-decoration: underline; }
 
 .offline-loading { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-.offline-ring { width: 26px; height: 26px; transform: rotate(-90deg); }
-.offline-ring-bg  { fill: none; stroke: rgba(255,255,255,.2); stroke-width: 3.5; }
+.offline-ring { width: 16px; height: 16px; transform: rotate(-90deg); }
+.offline-ring-bg  { fill: none; stroke: rgba(255,255,255,.2); stroke-width: 4; }
 .offline-ring-fill {
   fill: none;
   stroke: rgba(255,255,255,.85);
-  stroke-width: 3.5;
+  stroke-width: 4;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
   stroke-linecap: round;
@@ -130,15 +130,16 @@ a { color: var(--accent); text-decoration: underline; }
 .offline-ready-btn {
   font-size: .72rem;
   font-weight: 600;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.45);
+  color: #fff !important;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.6);
   border-radius: 6px;
   padding: .28rem .55rem;
   white-space: nowrap;
   letter-spacing: .01em;
   transition: background .15s, border-color .15s;
 }
-.offline-ready-btn:hover { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.7); }
+.offline-ready-btn:hover { background: rgba(255,255,255,.3); border-color: #fff; }
 
 /* ── Install modal ───────────────────────────────────────────────────────────── */
 .install-modal {
