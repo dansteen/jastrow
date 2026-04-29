@@ -169,6 +169,5 @@ export class JastrowSearch {
       }
       onProgress?.(++done / total);
     }));
-    }
   }
 }
