@@ -317,7 +317,7 @@ installModal.addEventListener('click', e => { if (e.target === installModal) ins
 
 // ── Hide install UI when already running as installed PWA ─────────────────────
 if (isInstalledPWA) {
-  document.querySelector('.offline-wrap').hidden = true;
+  document.querySelector('.offline-wrap').style.display = 'none';
 }
 
 // ── Welcome modal ──────────────────────────────────────────────────────────────
