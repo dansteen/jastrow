@@ -29,8 +29,14 @@
       </h1>
       <div class="header-actions">
         <div class="offline-wrap">
-          <button id="offlineBtn" class="btn-icon" title="Install for offline use" aria-label="Install for offline use" disabled>⬇</button>
-          <div class="offline-prog"><div id="offlineBar"></div></div>
+          <div id="offlineLoading" class="offline-loading">
+            <svg class="offline-ring" viewBox="0 0 36 36" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9" class="offline-ring-bg"/>
+              <circle cx="18" cy="18" r="15.9" class="offline-ring-fill" id="offlineRingFill"/>
+            </svg>
+            <span class="offline-dl-label">Downloading data</span>
+          </div>
+          <button id="offlineBtn" class="offline-ready-btn" title="Install for offline use" aria-label="Install for offline use" hidden>Install offline</button>
         </div>
         <button id="themeBtn" class="btn-icon" title="Toggle dark mode" aria-label="Toggle dark mode">☽</button>
       </div>

@@ -98,10 +98,47 @@ a { color: var(--accent); text-decoration: underline; }
 .btn-icon:disabled { opacity: .35; cursor: default; }
 .btn-icon:disabled:hover { background: none; }
 
-/* ── Offline install button ──────────────────────────────────────────────────── */
-.offline-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.offline-prog { width: 28px; height: 2px; background: rgba(255,255,255,.2); border-radius: 1px; overflow: hidden; }
-.offline-prog > div { height: 100%; width: 0; background: rgba(255,255,255,.9); border-radius: 1px; transition: width .5s ease-out; }
+/* ── Offline indicator ───────────────────────────────────────────────────────── */
+.offline-wrap { display: flex; align-items: center; }
+
+.offline-loading { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+.offline-ring { width: 26px; height: 26px; transform: rotate(-90deg); }
+.offline-ring-bg  { fill: none; stroke: rgba(255,255,255,.2); stroke-width: 3.5; }
+.offline-ring-fill {
+  fill: none;
+  stroke: rgba(255,255,255,.85);
+  stroke-width: 3.5;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .5s ease-out;
+}
+
+.offline-dl-label {
+  font-size: .58rem;
+  color: rgba(255,255,255,.8);
+  white-space: nowrap;
+  letter-spacing: .01em;
+  animation: dl-pulse 1.6s ease-in-out infinite;
+}
+@keyframes dl-pulse {
+  0%, 100% { opacity: .4; }
+  50%       { opacity: 1; }
+}
+
+.offline-ready-btn {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 6px;
+  padding: .28rem .55rem;
+  white-space: nowrap;
+  letter-spacing: .01em;
+  transition: background .15s, border-color .15s;
+}
+.offline-ready-btn:hover { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.7); }
 
 /* ── Install modal ───────────────────────────────────────────────────────────── */
 .install-modal {
