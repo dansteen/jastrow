@@ -1,6 +1,35 @@
-import { getChunk, putChunk } from './idb.js';
-
 const ENTRIES_BASE = 'data/entries/';
+
+// ── IndexedDB helpers (inlined to avoid a fragile module dependency) ──────────
+const _IDB_NAME = 'jastrow', _IDB_VER = 1, _IDB_STORE = 'chunks';
+let _idb = null;
+
+function _openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(_IDB_NAME, _IDB_VER);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(_IDB_STORE);
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function _db() { if (!_idb) _idb = await _openIDB(); return _idb; }
+
+async function getChunk(letter) {
+  const store = (await _db()).transaction(_IDB_STORE).objectStore(_IDB_STORE);
+  return new Promise((resolve, reject) => {
+    const req = store.get(letter);
+    req.onsuccess = e => resolve(e.target.result ?? null);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function putChunk(letter, data) {
+  const store = (await _db()).transaction(_IDB_STORE, 'readwrite').objectStore(_IDB_STORE);
+  return new Promise((resolve, reject) => {
+    const req = store.put(data, letter);
+    req.onsuccess = () => resolve();
+    req.onerror   = e => reject(e.target.error);
+  });
+}
 const NIKUD_RE = /[֑-ׇ]/g;
 const FINAL_MAP = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
 const SUPER_RE  = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/;
