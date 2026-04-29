@@ -111,7 +111,7 @@ function selectActive() {
 }
 
 // ── Entry display ─────────────────────────────────────────────────────────────
-async function openEntry(rid, hw, { skipHistory = false, replaceHistory = false } = {}) {
+async function openEntry(rid, hw, { skipHistory = false, replaceHistory = false, scrollTo = null } = {}) {
   hideSuggestions();
   searchInput.value = hw;
   clearBtn.hidden = false;
@@ -129,8 +129,15 @@ async function openEntry(rid, hw, { skipHistory = false, replaceHistory = false 
     const members = dict.groupFor(hw);
     const group = members.length ? members : [{ hw, rid }];
     const entries = (await Promise.all(group.map(m => dict.entry(m.rid)))).filter(Boolean);
-    if (entries.length) renderEntries(entries);
-    else entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    if (entries.length) {
+      renderEntries(entries);
+      if (scrollTo) {
+        document.getElementById(`entry-${scrollTo}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      entryView.innerHTML = '<p class="entry-err">Entry not found.</p>';
+    }
   } catch (e) {
     entryView.innerHTML = '<p class="entry-err">Could not load entry — are you offline?</p>';
   }
@@ -145,7 +152,7 @@ function renderEntries(entries) {
       const hw = a.textContent.trim() || extractHwFromRef(a.dataset.ref);
       if (hw) {
         const results = dict.search(hw);
-        if (results.length) openEntry(results[0].rid, results[0].hw);
+        if (results.length) openEntry(results[0].rid, results[0].hw, { scrollTo: results[0].rid });
       }
     });
   });
@@ -192,9 +199,9 @@ function buildSenses(senses, depth = 0) {
 
 function extractHwFromRef(ref) {
   if (!ref) return '';
-  // "Jastrow, הָבַב I 1" → "הָבַב"
-  const m = ref.match(/Jastrow,\s*(.+?)(?:\s+[IVX]+)?\s+\d*$/);
-  return m ? m[1].trim() : '';
+  // "Jastrow, הָבַב I 1" → "הָבַב I"  (keep Roman numeral, strip only trailing page number)
+  const m = ref.match(/Jastrow,\s*(.+)/);
+  return m ? m[1].replace(/\s+\d+\s*$/, '').trim() : '';
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
