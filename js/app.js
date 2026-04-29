@@ -16,6 +16,8 @@ const offlineRingFill  = document.getElementById('offlineRingFill');
 const installModal     = document.getElementById('installModal');
 const installInstr     = document.getElementById('installInstructions');
 const installModalClose = document.getElementById('installModalClose');
+const welcomeModal     = document.getElementById('welcomeModal');
+const welcomeModalClose = document.getElementById('welcomeModalClose');
 
 // ── State ───────────────────────────────────────────────────────────────────
 const dict = new JastrowSearch();
@@ -277,7 +279,20 @@ offlineBtn.addEventListener('click', () => {
 });
 installModalClose.addEventListener('click', () => installModal.classList.add('hidden'));
 installModal.addEventListener('click', e => { if (e.target === installModal) installModal.classList.add('hidden'); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') installModal.classList.add('hidden'); });
+
+// ── Welcome modal ──────────────────────────────────────────────────────────────
+function dismissWelcome() {
+  welcomeModal.classList.add('hidden');
+  localStorage.setItem('welcomed', '1');
+}
+if (!localStorage.getItem('welcomed')) {
+  welcomeModal.classList.remove('hidden');
+} else {
+  welcomeModal.classList.add('hidden');
+}
+welcomeModalClose.addEventListener('click', dismissWelcome);
+welcomeModal.addEventListener('click', e => { if (e.target === welcomeModal) dismissWelcome(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { installModal.classList.add('hidden'); dismissWelcome(); } });
 
 
 // ── Init ──────────────────────────────────────────────────────────────────────
