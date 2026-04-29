@@ -282,13 +282,11 @@ installModal.addEventListener('click', e => { if (e.target === installModal) ins
 
 // ── Welcome modal ──────────────────────────────────────────────────────────────
 function dismissWelcome() {
-  welcomeModal.classList.add('hidden');
+  welcomeModal.style.display = 'none';
   localStorage.setItem('welcomed', '1');
 }
-if (!localStorage.getItem('welcomed')) {
-  welcomeModal.classList.remove('hidden');
-} else {
-  welcomeModal.classList.add('hidden');
+if (localStorage.getItem('welcomed')) {
+  welcomeModal.style.display = 'none';
 }
 welcomeModalClose.addEventListener('click', dismissWelcome);
 welcomeModal.addEventListener('click', e => { if (e.target === welcomeModal) dismissWelcome(); });
