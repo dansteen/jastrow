@@ -468,8 +468,8 @@ a { color: var(--accent); text-decoration: underline; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────────── */
 
-/* Mobile: lock keyboard to the bottom of the viewport */
-@media (max-width: 719px) {
+/* Mobile + tablet: lock keyboard to the bottom of the viewport */
+@media (max-width: 1024px) {
   .keyboard {
     position: fixed;
     bottom: 0;
