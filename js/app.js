@@ -111,10 +111,15 @@ function selectActive() {
 }
 
 // ── Entry display ─────────────────────────────────────────────────────────────
-async function openEntry(rid, hw) {
+async function openEntry(rid, hw, { skipHistory = false, replaceHistory = false } = {}) {
   hideSuggestions();
   searchInput.value = hw;
   clearBtn.hidden = false;
+
+  if (!skipHistory) {
+    const method = replaceHistory ? 'replaceState' : 'pushState';
+    history[method]({ rid, hw }, '', `?q=${encodeURIComponent(hw)}`);
+  }
 
   entryView.innerHTML = '<div class="entry-loading">Loading…</div>';
   entryView.classList.remove('hidden');
@@ -232,7 +237,10 @@ themeBtn.addEventListener('click', () => { dark = !dark; applyTheme(dark); });
 // ── Event wiring ──────────────────────────────────────────────────────────────
 searchInput.addEventListener('input', triggerSearch);
 
-searchInput.addEventListener('click', expandKeyboard);
+searchInput.addEventListener('click', () => {
+  expandKeyboard();
+  triggerSearch(); // re-shows suggestions if text is already present
+});
 
 searchInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') { e.preventDefault(); moveSuggestion(1); }
@@ -246,11 +254,29 @@ clearBtn.addEventListener('click', () => {
   clearBtn.hidden = true;
   hideSuggestions();
   entryView.classList.add('hidden');
+  history.pushState({ view: 'home' }, '', location.pathname);
   searchInput.focus();
+  expandKeyboard();
 });
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('.search-area')) hideSuggestions();
+  if (!e.target.closest('.search-area') && !e.target.closest('#keyboard')) {
+    hideSuggestions();
+    collapseKeyboard();
+  }
+});
+
+// ── Browser back/forward ──────────────────────────────────────────────────────
+window.addEventListener('popstate', e => {
+  if (e.state?.rid) {
+    openEntry(e.state.rid, e.state.hw, { skipHistory: true });
+  } else {
+    entryView.classList.add('hidden');
+    searchInput.value = '';
+    clearBtn.hidden = true;
+    hideSuggestions();
+    expandKeyboard();
+  }
 });
 
 entryView.addEventListener('click', e => {
@@ -302,7 +328,24 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
   try {
     const count = await dict.init();
     statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
-    searchInput.focus();
+
+    // Open entry from shared/bookmarked URL, or settle on home state
+    const initQ = new URLSearchParams(location.search).get('q');
+    if (initQ) {
+      searchInput.value = initQ;
+      clearBtn.hidden = false;
+      const results = dict.search(initQ);
+      if (results.length) {
+        await openEntry(results[0].rid, results[0].hw, { replaceHistory: true });
+      } else {
+        history.replaceState({ view: 'home' }, '', location.pathname);
+        searchInput.focus();
+      }
+    } else {
+      history.replaceState({ view: 'home' }, '', location.pathname);
+      searchInput.focus();
+    }
+
     // Background prefetch of all entry chunks for full offline support
     dict.prefetchAll(p => {
       offlineRingFill.style.strokeDashoffset = (100 * (1 - p)).toFixed(1);
