@@ -146,10 +146,10 @@ async function openEntry(rid, hw, { skipHistory = false, replaceHistory = false,
 function renderEntries(entries) {
   entryView.innerHTML = entries.map(entryCardHtml).join('');
   entryView.querySelectorAll('a.refLink, [data-ref]').forEach(a => {
-    a.setAttribute('href', '#');
+    const hw = a.textContent.trim() || extractHwFromRef(a.dataset.ref);
+    a.setAttribute('href', hw ? `?q=${encodeURIComponent(hw)}` : '#');
     a.addEventListener('click', e => {
       e.preventDefault();
-      const hw = a.textContent.trim() || extractHwFromRef(a.dataset.ref);
       if (hw) {
         const results = dict.search(hw);
         if (results.length) openEntry(results[0].rid, results[0].hw, { scrollTo: results[0].rid });
