@@ -21,6 +21,8 @@ const welcomeModalClose = document.getElementById('welcomeModalClose');
 
 // ── State ───────────────────────────────────────────────────────────────────
 const dict = new JastrowSearch();
+const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches
+                    || navigator.standalone === true;
 let debounce = null;
 let activeIdx = -1;   // keyboard-selected suggestion index
 let lastQuery = '';
@@ -313,12 +315,17 @@ offlineBtn.addEventListener('click', () => {
 installModalClose.addEventListener('click', () => installModal.classList.add('hidden'));
 installModal.addEventListener('click', e => { if (e.target === installModal) installModal.classList.add('hidden'); });
 
+// ── Hide install UI when already running as installed PWA ─────────────────────
+if (isInstalledPWA) {
+  document.querySelector('.offline-wrap').hidden = true;
+}
+
 // ── Welcome modal ──────────────────────────────────────────────────────────────
 function dismissWelcome() {
   welcomeModal.style.display = 'none';
   localStorage.setItem('welcomed', '1');
 }
-if (localStorage.getItem('welcomed')) {
+if (localStorage.getItem('welcomed') || isInstalledPWA) {
   welcomeModal.style.display = 'none';
 }
 welcomeModalClose.addEventListener('click', dismissWelcome);
