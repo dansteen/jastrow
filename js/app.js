@@ -343,7 +343,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
       clearBtn.hidden = false;
       const results = dict.search(initQ);
       if (results.length) {
-        await openEntry(results[0].rid, results[0].hw, { replaceHistory: true });
+        await openEntry(results[0].rid, results[0].hw, { replaceHistory: true, scrollTo: results[0].rid });
       } else {
         history.replaceState({ view: 'home' }, '', location.pathname);
         searchInput.focus();
