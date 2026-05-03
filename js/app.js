@@ -2,17 +2,21 @@ import { JastrowSearch, isHebrew } from './search.js';
 import { HebrewKeyboard } from './keyboard.js';
 
 // ── DOM refs ────────────────────────────────────────────────────────────────
-const searchInput  = document.getElementById('searchInput');
-const suggestions  = document.getElementById('suggestions');
-const clearBtn     = document.getElementById('clearBtn');
-const kbToggleBtn  = document.getElementById('kbToggleBtn');
-const entryView    = document.getElementById('entryView');
-const kbContainer  = document.getElementById('keyboard');
-const statusMsg    = document.getElementById('statusMsg');
-const themeBtn     = document.getElementById('themeBtn');
+const searchInput    = document.getElementById('searchInput');
+const suggestions    = document.getElementById('suggestions');
+const clearBtn       = document.getElementById('clearBtn');
+const kbToggleBtn    = document.getElementById('kbToggleBtn');
+const entryView      = document.getElementById('entryView');
+const kbContainer    = document.getElementById('keyboard');
+const statusMsg      = document.getElementById('statusMsg');
+const themeBtn       = document.getElementById('themeBtn');
+const updateBanner   = document.getElementById('updateBanner');
+const updateReloadBtn = document.getElementById('updateReloadBtn');
 
 // ── State ───────────────────────────────────────────────────────────────────
 const dict = new JastrowSearch();
+const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches
+                    || navigator.standalone === true;
 let debounce = null;
 let activeIdx = -1;   // keyboard-selected suggestion index
 let lastQuery = '';
@@ -269,13 +273,31 @@ entryView.addEventListener('click', e => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(console.warn);
+    const reg = await navigator.serviceWorker.register('sw.js').catch(() => null);
+    if (reg) {
+      function onUpdateReady() {
+        updateBanner.style.display = 'flex';
+        updateReloadBtn.onclick = () => {
+          navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+          reg.waiting?.postMessage('skip-waiting');
+        };
+      }
+      if (reg.waiting) onUpdateReady();
+      reg.addEventListener('updatefound', () => {
+        reg.installing?.addEventListener('statechange', ev => {
+          if (ev.target.state === 'installed' && navigator.serviceWorker.controller) onUpdateReady();
+        });
+      });
+      const checkUpdate = () => { if (navigator.onLine) reg.update().catch(() => {}); };
+      setInterval(checkUpdate, 60 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
+    }
   }
 
   try {
     const count = await dict.init();
     statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
-    searchInput.focus();
+    if (!isInstalledPWA) searchInput.focus();
     // Background prefetch of all entry chunks for full offline support
     setTimeout(() => dict.prefetchAll().catch(() => {}), 5000);
   } catch {

@@ -389,6 +389,31 @@ a { color: var(--accent); text-decoration: underline; }
   padding-top: .5rem;
 }
 
+/* ── Update banner ───────────────────────────────────────────────────────────── */
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  background: var(--gold);
+  color: #fff;
+  padding: .4rem 1rem;
+  font-size: .82rem;
+  font-weight: 500;
+}
+.update-banner[hidden] { display: none; }
+.update-reload-btn {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.5);
+  color: #fff;
+  border-radius: 5px;
+  padding: .15rem .55rem;
+  font-size: .82rem;
+  font-weight: 700;
+  transition: background .15s;
+}
+.update-reload-btn:hover { background: rgba(255,255,255,.35); }
+
 /* ── Status bar ──────────────────────────────────────────────────────────────── */
 .status-bar {
   text-align: center;
