@@ -1,7 +1,7 @@
 import { JastrowSearch, isHebrew } from './search.js';
 import { HebrewKeyboard } from './keyboard.js';
 
-const APP_VERSION = 'v10';
+const APP_VERSION = 'v11';
 
 // ── DOM refs ────────────────────────────────────────────────────────────────
 const searchInput      = document.getElementById('searchInput');
