@@ -18,6 +18,8 @@ const installInstr     = document.getElementById('installInstructions');
 const installModalClose = document.getElementById('installModalClose');
 const welcomeModal     = document.getElementById('welcomeModal');
 const welcomeModalClose = document.getElementById('welcomeModalClose');
+const updateBanner     = document.getElementById('updateBanner');
+const updateReloadBtn  = document.getElementById('updateReloadBtn');
 
 // ── State ───────────────────────────────────────────────────────────────────
 const dict = new JastrowSearch();
@@ -336,7 +338,25 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(console.warn);
+    const reg = await navigator.serviceWorker.register('sw.js').catch(() => null);
+    if (reg) {
+      function onUpdateReady() {
+        updateBanner.style.display = 'flex';
+        updateReloadBtn.onclick = () => {
+          navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+          reg.waiting?.postMessage('skip-waiting');
+        };
+      }
+      if (reg.waiting) onUpdateReady();
+      reg.addEventListener('updatefound', () => {
+        reg.installing?.addEventListener('statechange', ev => {
+          if (ev.target.state === 'installed' && navigator.serviceWorker.controller) onUpdateReady();
+        });
+      });
+      const checkUpdate = () => { if (navigator.onLine) reg.update().catch(() => {}); };
+      setInterval(checkUpdate, 60 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
+    }
   }
 
   try {
@@ -353,12 +373,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
         await openEntry(results[0].rid, results[0].hw, { replaceHistory: true, scrollTo: results[0].rid });
       } else {
         history.replaceState({ view: 'home' }, '', location.pathname);
-        searchInput.focus();
+        if (!isInstalledPWA) searchInput.focus();
       }
     } else {
       history.replaceState({ view: 'home' }, '', location.pathname);
-      searchInput.focus();
+      if (!isInstalledPWA) searchInput.focus();
     }
+
 
     // Background prefetch of all entry chunks for full offline support
     dict.prefetchAll(p => {
