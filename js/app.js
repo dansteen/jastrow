@@ -363,7 +363,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
 
   try {
     const count = await dict.init();
-    statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary · ${APP_VERSION}`;
+    statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
+    document.getElementById('appVersion').textContent = APP_VERSION;
 
     // Open entry from shared/bookmarked URL, or settle on home state
     const initQ = new URLSearchParams(location.search).get('q');
