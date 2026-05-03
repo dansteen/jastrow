@@ -1,4 +1,4 @@
-const CACHE = 'jastrow-v4';
+const CACHE = 'jastrow-v5';
 
 const SHELL = [
   './',
@@ -18,7 +18,6 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
       .then(c => c.addAll(SHELL))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -52,6 +51,7 @@ self.addEventListener('fetch', e => {
 
 // Pre-cache all entry chunks on request from the app
 self.addEventListener('message', e => {
+  if (e.data === 'skip-waiting') { self.skipWaiting(); return; }
   if (e.data !== 'prefetch-entries') return;
   const letters = 'ABCDEFGHIJKLMNOPQRSTUV'.split('');
   caches.open(CACHE).then(async cache => {
