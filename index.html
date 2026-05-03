@@ -11,11 +11,30 @@
 
   <title>Jastrow Dictionary</title>
 
+  <link rel="canonical" href="https://jastrow.us/">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Jastrow Dictionary",
+    "url": "https://jastrow.us/",
+    "description": "Search Jastrow's Dictionary of the Targumim, Talmud Babli and Yerushalmi, and the Midrashic Literature — fully offline, runs in the browser.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://jastrow.us/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
 
