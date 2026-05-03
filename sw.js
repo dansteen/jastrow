@@ -1,4 +1,4 @@
-const CACHE = 'jastrow-v9';
+const CACHE = 'jastrow-v10';
 
 const SHELL = [
   './',
@@ -16,8 +16,11 @@ const SHELL = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE)
-      .then(c => c.addAll(SHELL))
+    caches.open(CACHE).then(c =>
+      Promise.all(
+        SHELL.map(url => fetch(url, { cache: 'reload' }).then(r => c.put(url, r)))
+      )
+    )
   );
 });
 
