@@ -1,6 +1,8 @@
 import { JastrowSearch, isHebrew } from './search.js';
 import { HebrewKeyboard } from './keyboard.js';
 
+const APP_VERSION = 'v8';
+
 // ── DOM refs ────────────────────────────────────────────────────────────────
 const searchInput      = document.getElementById('searchInput');
 const suggestions      = document.getElementById('suggestions');
@@ -361,7 +363,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { installMod
 
   try {
     const count = await dict.init();
-    statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary`;
+    statusMsg.textContent = `${count.toLocaleString()} entries · Jastrow Dictionary · ${APP_VERSION}`;
 
     // Open entry from shared/bookmarked URL, or settle on home state
     const initQ = new URLSearchParams(location.search).get('q');
