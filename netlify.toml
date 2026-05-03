@@ -1,0 +1,52 @@
+[build]
+  publish = "."
+
+# sw.js and index.html must never be cached so updates are always picked up
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# JS and CSS: short HTTP cache — SW handles offline anyway
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Search index: cache for a day
+[[headers]]
+  for = "/data/index.json"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Entry chunks: rarely change, cache for a week
+[[headers]]
+  for = "/data/entries/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Icons: very stable
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
